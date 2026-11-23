@@ -1,1 +1,5 @@
 .venv-gpu
+data/cwru/
+models/
+data/casting_data/
+data/gtsrb/
