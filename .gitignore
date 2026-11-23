@@ -1,5 +1,25 @@
-.venv-gpu
-data/cwru/
+# Virtual environments
+.venv*/
+venv/
+env/
+
+# Datasets: the notebooks download these on first run
+data/
+Test_data/
+*.zip
+
+# Python / Jupyter
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Trained models
 models/
-data/casting_data/
-data/gtsrb/
+*.pth
+*.pt
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

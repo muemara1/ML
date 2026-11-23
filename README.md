@@ -1,9 +1,19 @@
-# Machine Learning & Computer Vision Projects
+# Machine Learning & Computer Vision with PyTorch
 
 I come from industrial machine maintenance: I used to fix machines **after** they broke.
 Now I build models that see defects, predict failures **before** they happen, and run on small hardware.
 
-All projects use **Python, PyTorch and scikit-learn**, and each one is a single notebook you can run from top to bottom.
+This repo holds my projects and my hands-on course notebooks, alongside my M.Eng. in
+*Artificial Intelligence for Smart Sensors and Actuators* (Deggendorf Institute of Technology).
+
+![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-CUDA-ee4c2c?logo=pytorch&logoColor=white)
+![ONNX](https://img.shields.io/badge/ONNX-Runtime-005ced?logo=onnx&logoColor=white)
+![Jupyter](https://img.shields.io/badge/Jupyter-Notebooks-f37626?logo=jupyter&logoColor=white)
+
+---
+
+## Projects
 
 | Project | Data | Key result |
 |---|---|---|
@@ -13,12 +23,12 @@ All projects use **Python, PyTorch and scikit-learn**, and each one is a single 
 
 ---
 
-## 🚦 Traffic sign recognition: from training to deployment
+### 🚦 Traffic sign recognition: from training to deployment
 📓 [`traffic_signs.ipynb`](traffic_signs.ipynb) · 📦 [`deploy/`](deploy/)
 
 Training a good classifier is the easy part. Car makers care about **size, speed and running without a big framework**. This project goes all the way from data to a standalone app.
 
-![The 43 GTSRB classes](images/traffic_sign_classes.png)
+![The 43 GTSRB classes](assets/traffic_sign_classes.png)
 
 **What I did**
 - **Leak-free validation split by track.** GTSRB films every real sign 30 times from a moving car. A random split puts almost identical photos in both train and validation, so I split by *physical sign* instead.
@@ -27,7 +37,7 @@ Training a good classifier is the easy part. Car makers care about **size, speed
 - **Deployment pipeline:** PyTorch → **ONNX** → **INT8 static quantization** (calibrated on training images), measured like an embedded device: 1 CPU thread, batch size 1, with warm-up.
 - **A standalone predictor** ([`deploy/predict_sign.py`](deploy/predict_sign.py)) that needs only `onnxruntime`, `numpy` and `Pillow`. The preprocessing settings are saved in `labels.json`, so the device does exactly the same steps as training.
 
-![Deployment results](images/traffic_deployment.png)
+![Deployment results](assets/traffic_deployment.png)
 
 | Version | Size | Latency (1 thread) | Test accuracy |
 |---|---|---|---|
@@ -39,13 +49,13 @@ Training a good classifier is the easy part. Car makers care about **size, speed
 
 ---
 
-## 🔧 Bearing fault detection from vibration (predictive maintenance)
+### 🔧 Bearing fault detection from vibration (predictive maintenance)
 📓 [`bearing_faults_full.ipynb`](bearing_faults_full.ipynb)
 
 An accelerometer on a motor bearing records vibration 12,000 times per second. A crack makes a small "hit" every time a ball rolls over it. The goal is to recognize these patterns **before** the bearing fails.
 10 classes: healthy + 3 fault locations (inner race, ball, outer race) × 3 fault sizes.
 
-![Raw vibration signals](images/bearing_signals.png)
+![Raw vibration signals](assets/bearing_signals.png)
 
 **What I did**
 - **Leak-free split by time:** each recording is split 60/20/20 **before** cutting it into windows, so overlapping windows never appear in both train and test.
@@ -54,7 +64,7 @@ An accelerometer on a motor bearing records vibration 12,000 times per second. A
 - **Autoencoder for anomaly detection**, trained on **healthy data only**, which is the realistic case in a factory, where fault examples are rare. A high reconstruction error raises an alarm.
 - **Robustness test** on new recordings at a different motor load (1 HP).
 
-![Autoencoder health monitor](images/bearing_health_monitor.png)
+![Autoencoder health monitor](assets/bearing_health_monitor.png)
 
 | Model | Same load (0 HP) | New load (1 HP) | New load, fault *location* only |
 |---|---|---|---|
@@ -72,12 +82,12 @@ An accelerometer on a motor bearing records vibration 12,000 times per second. A
 
 ---
 
-## 🏭 Casting defect detection
+### 🏭 Casting defect detection
 📓 [`casting_data_full.ipynb`](casting_data_full.ipynb)
 
 Visual quality inspection of metal casting parts (submersible pump impellers): **defective** or **ok**.
 
-![Casting samples](images/casting_samples.png)
+![Casting samples](assets/casting_samples.png)
 
 **What I did**
 - Loaded the images with `ImageFolder` (grayscale, 64×64) and built a small CNN (2 conv blocks + classifier) in PyTorch.
@@ -88,15 +98,60 @@ Visual quality inspection of metal casting parts (submersible pump impellers): *
 
 ---
 
-## ⚙️ How to run
+## Course notebooks
+
+### FashionMNIST: linear baseline vs CNN
+
+| Model | Architecture | Test accuracy |
+|---|---|---|
+| Linear baseline | Flatten → Linear → Linear | 84.0 % |
+| **CNN** | 2 × (Conv-ReLU-Conv-ReLU-MaxPool) → Linear | **87.6 %** (3 epochs, 58 s on GPU) |
+
+<p align="center">
+  <img src="assets/fashionmnist_samples.png" width="38%" alt="FashionMNIST samples">
+  &nbsp;
+  <img src="assets/fashionmnist_confusion_matrix.png" width="42%" alt="CNN confusion matrix">
+</p>
+
+The confusion matrix shows where the CNN struggles: **Shirt** is the hardest
+class (63 % correct), mostly confused with T-shirt/top, Coat and Pullover.
+Trousers, bags, sandals and ankle boots are above 96 %.
+
+→ [`pytorch-course/03_computer_vision_fashionmnist.ipynb`](pytorch-course/03_computer_vision_fashionmnist.ipynb)
+
+### `pytorch-course/`: Zero to Mastery, *Learn PyTorch for Deep Learning*
+
+| Notebook | Topics |
+|---|---|
+| [00_pytorch_basics](pytorch-course/00_pytorch_basics.ipynb) | Environment check, CUDA, first tensors |
+| [03_computer_vision_fashionmnist](pytorch-course/03_computer_vision_fashionmnist.ipynb) | `torchvision` datasets, `DataLoader`, linear model vs CNN, device-agnostic train/test functions, confusion matrix |
+| [04_custom_datasets](pytorch-course/04_custom_datasets.ipynb) | Image-folder dataset (pizza / steak / sushi): exploring, transforms, `ImageFolder`, `DataLoader`, and a custom `Dataset` class *(in progress)* |
+
+`helper_functions.py` comes from the course repository.
+
+### `llm-course/`: *A deep understanding of AI large language model mechanisms*
+
+Course code by Mike X Cohen that I'm working through: tokenization and
+embeddings, building a GPT-style transformer from scratch, pretraining and
+fine-tuning, evaluation, and mechanistic interpretability (hooks, attention
+heads, activation patching). See [`llm-course/README.md`](llm-course/README.md).
+
+---
+
+## Running the notebooks
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate          # Windows  (Linux/macOS: source .venv/bin/activate)
-pip install torch torchvision scikit-learn scipy pandas matplotlib tqdm onnx onnxruntime onnxscript
+git clone https://github.com/muemara1/ML.git
+cd ML
+python -m venv .venv-gpu
+# Windows: .venv-gpu\Scripts\activate    Linux/macOS: source .venv-gpu/bin/activate
+
+# For an NVIDIA GPU, install the CUDA build of torch first (see pytorch.org)
+pip install -r requirements.txt
+jupyter notebook
 ```
 
-**Data** (not stored in this repo, see `.gitignore`):
+**Data** is not stored in the repo. The course notebooks download their data on first run. For the projects:
 
 | Project | Where to get it | Put it in |
 |---|---|---|
@@ -111,7 +166,18 @@ python deploy/predict_sign.py path/to/sign.png
 ```
 
 > **AMD GPU note:** on ROCm under Windows, MIOpen may fail to compile its BatchNorm kernel.
-> The notebooks set `torch.backends.cudnn.enabled = False` to use PyTorch's built-in kernels instead.
+> The project notebooks set `torch.backends.cudnn.enabled = False` to use PyTorch's built-in kernels instead.
 
-## 🗂️ Other folders
-Learning notebooks from my courses: PyTorch basics, custom datasets, a computer vision recap, and an LLM course (tokens & embeddings).
+---
+
+## Credits
+
+- **PyTorch course:** Daniel Bourke, [Zero to Mastery: Learn PyTorch for Deep Learning](https://www.learnpytorch.io/)
+  ([code](https://github.com/mrdbourke/pytorch-deep-learning), MIT License).
+- **LLM course:** This software includes code developed by Mike X Cohen for the
+  Udemy course "A deep understanding of AI large language model mechanisms"
+  ([udemy.com/course/dulm_x](https://www.udemy.com/course/dulm_x/)), used under
+  the MIT License (Attribution Required). See [`llm-course/LICENSE`](llm-course/LICENSE).
+- **Datasets:** [GTSRB](https://benchmark.ini.rub.de/gtsrb_dataset.html) (Ruhr-Universität Bochum),
+  [CWRU Bearing Data Center](https://engineering.case.edu/bearingdatacenter) (Case Western Reserve University),
+  and the Kaggle casting product dataset.

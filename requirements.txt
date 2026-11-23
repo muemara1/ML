@@ -1,0 +1,25 @@
+# PyTorch course notebooks (pytorch-course/)
+# For GPU support, install torch/torchvision from https://pytorch.org first.
+torch
+torchvision
+torchmetrics
+mlxtend
+matplotlib
+numpy
+pillow
+requests
+tqdm
+jupyter
+ipywidgets
+
+# The LLM course notebooks (llm-course/) additionally use
+# transformers, datasets, tiktoken and others; each notebook
+# installs or imports what it needs.
+
+# Projects (traffic signs, bearing faults, casting defects)
+scikit-learn
+scipy
+pandas
+onnx
+onnxruntime
+onnxscript
